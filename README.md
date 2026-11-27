@@ -10,7 +10,7 @@ de **TecnoNorte** hacia **AWS**, basado en un Sistema de Gestión de Seguridad d
 **Integrantes:** Savka Carvajal · Carlos Villarroel · Esteban Ardiles
 
 - **Sistema publicado (Cloudflare Pages):** https://darsr-grupo4.pages.dev
-- **Repositorio (GitHub):** https://github.com/<usuario>/darsr-grupo4
+- **Repositorio (GitHub):** https://github.com/savkacarvajal/darsr-grupo4
 - **Datos del proyecto:** [`/data/proyecto-grupo4.json`](data/proyecto-grupo4.json)
 
 > Reemplazar `N` / `grupo4` por el número de grupo asignado en: el nombre del repo, el subdominio
