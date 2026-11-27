@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DARSR · Gestión de Migración Segura — TecnoNorte</title>
+<style>
+:root{
+  --rojo:#c8102e; --rojo-d:#a00d25; --azul:#1f2a44;
+  --bg:#eef1f5; --panel:#ffffff; --panel-2:#f7f8fa; --texto:#1b2230; --suave:#5d6775;
+  --borde:#dde2ea; --sombra:0 1px 3px rgba(20,30,50,.08),0 1px 2px rgba(20,30,50,.06);
+  --verde:#1a9850; --amarillo:#e8b000; --naranjo:#f06f20; --rojoR:#d7191c;
+  --radio:10px;
+}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --panel:#171e29; --panel-2:#1e2733; --texto:#e7ecf3; --suave:#9aa6b6;
+  --borde:#2a3444; --sombra:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--texto);font-size:15px;line-height:1.5}
+a{color:var(--rojo)}
+header.top{background:var(--azul);color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:50;box-shadow:var(--sombra)}
+header.top .brand{font-weight:800;letter-spacing:.5px;font-size:18px;display:flex;align-items:center;gap:9px}
+header.top .brand .dot{width:12px;height:12px;background:var(--rojo);border-radius:3px;display:inline-block}
+header.top .sub{color:#aab4c8;font-size:12px;font-weight:500}
+header.top .spacer{flex:1}
+header.top button.ghost{background:transparent;border:1px solid #39465f;color:#cdd6e6}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font-family:inherit;font-size:13px;font-weight:600;background:var(--rojo);color:#fff;border:0;padding:8px 13px;border-radius:7px;cursor:pointer;transition:.15s}
+button:hover{background:var(--rojo-d)}
+button.sec{background:var(--panel);color:var(--texto);border:1px solid var(--borde)}
+button.sec:hover{background:var(--panel-2)}
+button.mini{padding:4px 9px;font-size:12px}
+button.danger{background:transparent;color:var(--rojoR);border:1px solid var(--borde)}
+button.danger:hover{background:rgba(215,25,28,.1)}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap;padding:10px 20px 0;background:var(--bg);position:sticky;top:52px;z-index:40}
+nav.tabs button{background:var(--panel-2);color:var(--suave);border:1px solid var(--borde);border-bottom:0;border-radius:8px 8px 0 0;padding:8px 13px;font-size:13px}
+nav.tabs button.active{background:var(--panel);color:var(--rojo);box-shadow:0 -2px 0 var(--rojo) inset}
+main{max-width:1120px;margin:0 auto;padding:18px 20px 70px}
+.panel{background:var(--panel);border:1px solid var(--borde);border-radius:var(--radio);padding:20px;box-shadow:var(--sombra);margin-bottom:18px}
+h1,h2,h3{margin:.2em 0 .5em}
+h2.titulo{font-size:20px;color:var(--texto);border-left:4px solid var(--rojo);padding-left:10px}
+.muted{color:var(--suave);font-size:13px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi{background:var(--panel-2);border:1px solid var(--borde);border-radius:9px;padding:14px}
+.kpi .n{font-size:26px;font-weight:800;line-height:1}
+.kpi .l{font-size:12px;color:var(--suave);margin-top:5px;text-transform:uppercase;letter-spacing:.4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--borde);text-align:left;vertical-align:top}
+th{background:var(--panel-2);font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--suave);position:sticky;top:0}
+tr:hover td{background:var(--panel-2)}
+input,select,textarea{font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--borde);border-radius:6px;background:var(--panel);color:var(--texto);width:100%}
+textarea{resize:vertical;min-height:70px}
+label.f{display:block;margin:10px 0}
+label.f span{display:block;font-size:12px;font-weight:600;color:var(--suave);margin-bottom:4px}
+.row{display:grid;gap:10px}
+.r2{grid-template-columns:1fr 1fr}
+.r3{grid-template-columns:1fr 1fr 1fr}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.n-bajo{background:var(--verde)} .n-medio{background:var(--amarillo);color:#4a3b00} .n-alto{background:var(--naranjo)} .n-critico{background:var(--rojoR)}
+.scroll{overflow-x:auto}
+.heat{border-collapse:separate;border-spacing:3px}
+.heat td{width:72px;height:56px;text-align:center;border-radius:6px;color:#fff;font-weight:700;font-size:12px;border:0;padding:4px}
+.heat td.axis{background:transparent;color:var(--suave);font-weight:600;width:auto;height:auto}
+.heat .ids{font-size:10px;font-weight:600;display:block;margin-top:2px;opacity:.95}
+.pill{font-size:11px;background:var(--panel-2);border:1px solid var(--borde);border-radius:20px;padding:2px 8px;color:var(--suave)}
+details.guia{background:var(--panel-2);border:1px solid var(--borde);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+details.guia summary{cursor:pointer;font-weight:600;font-size:13px}
+details.guia table{margin-top:10px}
+.est{display:inline-flex;align-items:center;gap:5px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:var(--sombra);opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1}
+.addbar{display:flex;justify-content:flex-end;margin-top:10px}
+.cell-del{text-align:center}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;color:var(--rojo)}
+progress{width:100%;height:10px;border-radius:6px;overflow:hidden}
+hr{border:0;border-top:1px solid var(--borde);margin:16px 0}
+/* ===== Documento / impresión ===== */
+#doc-render{background:#fff;color:#111;padding:0}
+#doc-render h1,#doc-render h2,#doc-render h3{color:#111}
+#doc-print{display:none}
+@media print{
+  header.top,nav.tabs,.no-print,#toast{display:none!important}
+  main{max-width:none;padding:0}
+  .panel{box-shadow:none;border:0;padding:0}
+  #doc-print{display:block}
+  .tab-sec{display:none!important}
+  #tab-documento{display:block!important}
+  body{background:#fff}
+  .pagebreak{page-break-before:always}
+  table{font-size:11px}
+  th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .badge,.heat td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="dot"></span>DARSR<span class="sub">Gestión de Migración Segura · TecnoNorte</span></div>
+  <div class="spacer"></div>
+  <div class="toolbar no-print">
+    <button class="sec" onclick="exportJSON()">⬇ Exportar JSON</button>
+    <button class="sec" onclick="document.getElementById('imp').click()">⬆ Importar</button>
+    <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(event)">
+    <button class="sec" onclick="cargarCaso()" title="Restaurar el caso TecnoNorte precargado">↻ Cargar caso</button>
+    <button class="ghost" onclick="toggleTema()">◐ Tema</button>
+  </div>
+</header>
+
+<nav class="tabs no-print" id="tabs"></nav>
+
+<main>
+  <section id="tab-resumen" class="tab-sec"></section>
+  <section id="tab-alcance" class="tab-sec" hidden></section>
+  <section id="tab-inventario" class="tab-sec" hidden></section>
+  <section id="tab-identificacion" class="tab-sec" hidden></section>
+  <section id="tab-matriz" class="tab-sec" hidden></section>
+  <section id="tab-tratamiento" class="tab-sec" hidden></section>
+  <section id="tab-migracion" class="tab-sec" hidden></section>
+  <section id="tab-verificacion" class="tab-sec" hidden></section>
+  <section id="tab-politica" class="tab-sec" hidden></section>
+  <section id="tab-documento" class="tab-sec" hidden></section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   DARSR — Sistema de gestión de migración segura (TecnoNorte → AWS)
+   Un solo archivo, sin backend. Persistencia en localStorage + import/export JSON.
+   Matriz de riesgos R = P × I según la Guía Didáctica de Cálculo de Riesgos.
+   ========================================================================= */
+
+const LS_KEY = 'darsr_proyecto_v1';
+
+/* ---- Escala de referencia (Guía Didáctica) ---- */
+const ESCALA_P = [
+  "",
+  "Menos de 1 ataque al año en el sector",
+  "1–2 ataques al año, vulnerabilidades menores",
+  "3–5 ataques al año, vulnerabilidades conocidas",
+  "6–10 ataques al año, intentos documentados",
+  "Más de 10 ataques al año o intentos activos"
+];
+const ESCALA_I = [
+  "",
+  "Menos de 50 usuarios, datos no clasificados",
+  "50–500 usuarios, datos internos",
+  "500–5.000 usuarios, datos personales",
+  "5.000–50.000 usuarios, datos financieros o sistemas críticos",
+  "Más de 50.000 usuarios, operación paralizada o violación legal"
+];
+
+/* ---- Catálogo de controles ISO/IEC 27001:2022 — Anexo A (selección) ---- */
+const CONTROLES = [
+  "A.5.7 Inteligencia de amenazas","A.5.14 Transferencia de información","A.5.15 Control de acceso",
+  "A.5.17 Información de autenticación","A.5.18 Derechos de acceso","A.5.23 Seguridad para uso de servicios en la nube",
+  "A.5.29 Seguridad durante la disrupción","A.5.31 Requisitos legales, estatutarios y contractuales",
+  "A.5.34 Privacidad y protección de PII","A.6.3 Concienciación y formación",
+  "A.8.2 Derechos de acceso privilegiado","A.8.3 Restricción de acceso a la información",
+  "A.8.4 Acceso al código fuente","A.8.5 Autenticación segura","A.8.9 Gestión de la configuración",
+  "A.8.12 Prevención de fuga de datos","A.8.13 Respaldo de la información","A.8.15 Registro (logging)",
+  "A.8.16 Actividades de monitoreo","A.8.20 Seguridad de redes","A.8.21 Seguridad de servicios de red",
+  "A.8.22 Segregación de redes","A.8.23 Filtrado web","A.8.24 Uso de criptografía",
+  "A.8.25 Ciclo de vida de desarrollo seguro","A.8.26 Requisitos de seguridad de aplicaciones",
+  "A.8.27 Arquitectura de sistemas segura","A.8.28 Codificación segura"
+];
+
+/* ============================ DATOS DEL CASO ============================ */
+function datosPorDefecto(){ return {
+  grupo:"4",
+  integrantes:"Savka Carvajal · Carlos Villarroel · Esteban Ardiles",
+  fecha:"2026-11-27",
+  urlSistema:"https://darsr-grupo4.pages.dev",
+  urlRepo:"https://github.com/<usuario>/darsr-grupo4",
+  alcance:{
+    descripcion:"El SGSI cubre la infraestructura TI que soporta la tienda web TecnoNorte, en su estado actual on premise y su estado destino on cloud (AWS): servidor web (Apache 2.4 + PHP 8.3), base de datos MariaDB (base darsr_tienda con datos personales de clientes), equipos de red perimetral e interna con segmentación en VLAN, servidor de archivos (Samba) y el proceso de migración hacia la VPC 10.4.0.0/16 en AWS. Quedan fuera de alcance los equipos personales de usuarios finales y la red del ISP, salvo el punto de interconexión de borde.",
+    objetivos:"1) Preservar confidencialidad, integridad y disponibilidad de la tienda y de los datos personales durante y después de la migración. 2) Eliminar las falencias detectadas en la arquitectura, la aplicación y la base de datos on premise. 3) Aplicar mínimo privilegio, segregación de redes y cifrado (tránsito y reposo) en AWS. 4) Cumplir el marco normativo (ISO 27001/27002:2022, NIST CSF 2.0, Ley 21.663 y Ley 21.719).",
+    criterio:"Aceptable: riesgo residual ≤ 9 (niveles Bajo y Medio), se acepta con monitoreo. No aceptable: riesgo Alto (10–16) y Crítico (17–25), con obligación de tratar hasta reducir el riesgo residual a ≤ 9 (objetivo deseable ≤ 6). Todo riesgo que tras el tratamiento permanezca > 9 debe justificar un nuevo tratamiento o una aceptación formal documentada por la dirección."
+  },
+  inventario:[
+    {id:"A-01",activo:"Router de borde (Cisco)",tipo:"Red",zona:"Perímetro/DMZ (99/100)",ip:"200.100.0.6/29",servicio:"Enrutamiento, NAT, DHCP",clasif:"Interna",resp:"Administrador de red"},
+    {id:"A-02",activo:"Switch DMZ (Cisco)",tipo:"Red",zona:"DMZ (99/100)",ip:"—",servicio:"Troncal VLAN 99/100",clasif:"Interna",resp:"Administrador de red"},
+    {id:"A-03",activo:"Servidor web (Apache+PHP, tienda)",tipo:"Servidor",zona:"DMZ (100)",ip:"200.100.0.1/29",servicio:"HTTP 80, SSH 22",clasif:"Pública (servicio)",resp:"Administrador de sistemas"},
+    {id:"A-04",activo:"Base de datos (MariaDB darsr_tienda)",tipo:"Servidor/Datos",zona:"DMZ (100)",ip:"200.100.0.3/29",servicio:"MySQL 3306, SSH 22",clasif:"Confidencial/Restringida",resp:"DBA"},
+    {id:"A-05",activo:"Datos personales de clientes (tabla clientes)",tipo:"Información",zona:"En A-04",ip:"—",servicio:"—",clasif:"Restringida (PII — Ley 21.719)",resp:"Encargado de datos"},
+    {id:"A-06",activo:"Código fuente y configuración de la tienda",tipo:"Información",zona:"A-03",ip:"—",servicio:"—",clasif:"Confidencial",resp:"Desarrollo"},
+    {id:"A-07",activo:"Switch acceso VLAN 10 (Cisco)",tipo:"Red",zona:"LAN Usuarios (10)",ip:"—",servicio:"Acceso VLAN 10",clasif:"Interna",resp:"Administrador de red"},
+    {id:"A-08",activo:"Estación de trabajo / auditoría",tipo:"Cliente",zona:"LAN Usuarios (10)",ip:"DHCP",servicio:"Cliente de red",clasif:"Interna",resp:"Usuario / Auditor"},
+    {id:"A-09",activo:"Switch 2 acceso VLAN 20 (Cisco)",tipo:"Red",zona:"LAN Servidores (20)",ip:"—",servicio:"Acceso VLAN 20",clasif:"Interna",resp:"Administrador de red"},
+    {id:"A-10",activo:"Servidor de archivos (Samba)",tipo:"Servidor",zona:"LAN Servidores (20)",ip:"192.168.20.10/24",servicio:"SMB 445, SSH 22",clasif:"Confidencial",resp:"Administrador de sistemas"},
+    {id:"A-11",activo:"Enlace ISP / Internet",tipo:"Comunicaciones",zona:"Perímetro (99)",ip:"IP del proveedor",servicio:"WAN",clasif:"Interna",resp:"Proveedor / Red"}
+  ],
+  riesgos:[
+    {n:1,activo:"Servidor web / Base de datos",amenaza:"Inyección de comandos SQL",vuln:"Entrada $_GET['q'] concatenada directa en la consulta del buscador",fuente:"web/index.php:3 — OWASP A03:2021 Injection",p:5,i:5,opcion:"Mitigar",control:"A.8.28 Codificación segura; A.8.26 Requisitos de seguridad de aplicaciones",accion:"Reescribir consultas con prepared statements (parámetros enlazados)",pr:1,ir:5},
+    {n:2,activo:"Datos personales de clientes",amenaza:"Acceso no autorizado / divulgación de PII",vuln:"Panel de administración sin autenticación",fuente:"web/admin.php — OWASP A01:2021 / Ley 21.719",p:5,i:5,opcion:"Mitigar",control:"A.5.15 Control de acceso; A.8.5 Autenticación segura; A.8.3 Restricción de acceso",accion:"Autenticación en admin.php (login + sesión), rol admin y bloqueo tras intentos",pr:1,ir:5},
+    {n:3,activo:"Credenciales BD / Servidor web",amenaza:"Divulgación de credenciales",vuln:"Respaldo config.php.bak expuesto en el webroot",fuente:"web/backup/config.php.bak",p:4,i:5,opcion:"Mitigar",control:"A.8.9 Gestión de la configuración; A.8.12 Prevención de fuga de datos",accion:"Eliminar backup/ del webroot; respaldos fuera del sitio con acceso restringido",pr:1,ir:4},
+    {n:4,activo:"Código fuente / Base de datos",amenaza:"Robo de credenciales",vuln:"Credenciales embebidas y débiles en código publicado",fuente:"web/config.php:6 (Tienda2024); repositorio público",p:4,i:5,opcion:"Mitigar",control:"A.8.24 Uso de criptografía; A.5.17 Información de autenticación; A.8.4 Acceso al código fuente",accion:"Secretos fuera del código (variables de entorno / AWS Secrets Manager); rotar contraseña robusta",pr:1,ir:5},
+    {n:5,activo:"Base de datos",amenaza:"Escalada de privilegios / movimiento lateral",vuln:"Usuario de BD con ALL PRIVILEGES y acceso desde cualquier host",fuente:"bd/darsr_tienda.sql:65-66 (GRANT ALL ... 'tienda'@'%')",p:4,i:5,opcion:"Mitigar",control:"A.8.2 Derechos de acceso privilegiado; A.5.18 Derechos de acceso",accion:"GRANT SELECT,INSERT,UPDATE,DELETE ON darsr_g4.* TO 'app'@'10.4.1.%' (mínimo privilegio)",pr:1,ir:5},
+    {n:6,activo:"Base de datos",amenaza:"Acceso directo a la BD desde Internet",vuln:"BD con PII ubicada en la DMZ y puerto 3306 alcanzable",fuente:"Especificaciones pág. 2 (DMZ 200.100.0.0/29, BD 200.100.0.3); topología",p:4,i:5,opcion:"Mitigar",control:"A.8.22 Segregación de redes; A.8.20 Seguridad de redes",accion:"BD en subred privada 10.4.2.0/24 sin IP pública; 3306 solo desde el SG del servidor web",pr:1,ir:5},
+    {n:7,activo:"Servidor web / PII en tránsito",amenaza:"Intercepción (MITM) / sniffing",vuln:"Sin cifrado en tránsito (solo HTTP:80)",fuente:"Especificaciones pág. 3 (protocolo HTTP puerto 80)",p:3,i:4,opcion:"Mitigar",control:"A.8.24 Uso de criptografía",accion:"Habilitar HTTPS/TLS (certificado); redirigir 80→443",pr:1,ir:4},
+    {n:8,activo:"Servidor web",amenaza:"Reconocimiento / fuga de información",vuln:"Mensajes de error de BD mostrados al usuario",fuente:"web/index.php:19; web/config.php:11",p:3,i:3,opcion:"Mitigar",control:"A.8.28 Codificación segura",accion:"Manejo genérico de errores + registro interno (sin exponer detalle)",pr:1,ir:3},
+    {n:9,activo:"Todos los servidores y equipos",amenaza:"Acceso no autorizado / fuerza bruta",vuln:"Credenciales por defecto iguales (cisco/cisco) y SSH expuesto",fuente:"Especificaciones pág. 3 (usuario cisco / contraseña cisco)",p:4,i:5,opcion:"Mitigar",control:"A.8.5 Autenticación segura; A.5.17 Información de autenticación; A.8.2 Derechos de acceso privilegiado",accion:"Claves únicas y robustas por equipo; llaves SSH + MFA; 22 solo desde IP de administración",pr:1,ir:5},
+    {n:10,activo:"Infraestructura",amenaza:"Actividad maliciosa no detectada",vuln:"Ausencia de registro y monitoreo (logging/auditoría)",fuente:"No existe logging en la aplicación ni auditoría descrita",p:3,i:3,opcion:"Mitigar",control:"A.8.15 Registro; A.8.16 Actividades de monitoreo",accion:"Logging de aplicación + CloudTrail en AWS; revisión periódica",pr:2,ir:3},
+    {n:11,activo:"Cuenta AWS",amenaza:"Compromiso de la cuenta cloud / cobros indebidos",vuln:"Cuenta nueva sin MFA, sin IAM, Security Groups abiertos",fuente:"Pauta punto 3 (requisitos de aseguramiento)",p:3,i:5,opcion:"Mitigar",control:"A.5.23 Seguridad para uso de servicios en la nube; A.5.15 Control de acceso",accion:"MFA en cuenta root, usuario IAM de administración y AWS Budgets con alerta",pr:1,ir:5},
+    {n:12,activo:"Datos de la base de datos",amenaza:"Pérdida / corrupción durante la migración",vuln:"Migración sin respaldo verificado ni plan de rollback",fuente:"Pauta punto 3 (despliegue de BD)",p:3,i:4,opcion:"Mitigar",control:"A.8.13 Respaldo de la información; A.5.29 Seguridad durante la disrupción",accion:"Respaldo verificado del .sql antes de migrar; plan de rollback; validación post-migración",pr:1,ir:4},
+    {n:13,activo:"Datos en reposo (volúmenes)",amenaza:"Divulgación de PII en reposo",vuln:"Volúmenes EBS sin cifrar",fuente:"Pauta punto 3 (cifrado en reposo)",p:2,i:5,opcion:"Mitigar",control:"A.8.24 Uso de criptografía",accion:"Cifrado en reposo de volúmenes EBS y snapshots",pr:1,ir:5},
+    {n:14,activo:"Datos personales (PII)",amenaza:"Sanción regulatoria / daño reputacional",vuln:"Tratamiento de PII sin medidas de seguridad adecuadas",fuente:"Ley 21.719 de Protección de Datos Personales",p:3,i:4,opcion:"Mitigar",control:"A.5.34 Privacidad y protección de PII; A.5.31 Requisitos legales",accion:"Medidas técnicas y organizativas sobre PII; cifrado y control de acceso",pr:1,ir:4},
+    {n:15,activo:"Servidor web",amenaza:"XSS / inyección por entrada no validada",vuln:"Falta de validación de entrada en checkout.php (hay codificación de salida con h())",fuente:"web/checkout.php",p:2,i:3,opcion:"Mitigar",control:"A.8.28 Codificación segura",accion:"Validación de entrada en checkout.php",pr:1,ir:3}
+  ],
+  migracion:{
+    arquitectura:"VPC 10.4.0.0/16 con subred pública 10.4.1.0/24 (servidor web, EC2 con IP pública detrás de Security Group) y subred privada 10.4.2.0/24 (base de datos, EC2 sin IP pública). Internet Gateway asociado a la subred pública y tablas de enrutamiento: la pública enruta 0.0.0.0/0 al IGW; la privada solo tráfico interno de la VPC. La tienda se restaura desde el repositorio y la base desde darsr_tienda.sql como darsr_g4.",
+    responsabilidad:"Modelo de responsabilidad compartida de AWS. AWS es responsable de la seguridad DE la nube (hardware, virtualización, red física, disponibilidad de servicios). El grupo (cliente) es responsable de la seguridad EN la nube: configuración de la VPC y subredes, Security Groups, IAM y MFA, parches del sistema operativo de las EC2, cifrado de datos (EBS/TLS), gestión de credenciales de la aplicación y el endurecimiento de la tienda y la base de datos.",
+    etapas:[
+      {etapa:"E1 · Aseguramiento de la cuenta AWS",desc:"MFA en cuenta root, usuario IAM de administración y AWS Budgets con alerta de presupuesto (capa gratuita).",estado:"Pendiente",evidencia:""},
+      {etapa:"E2 · Red (VPC y subredes)",desc:"VPC 10.4.0.0/16, subred pública 10.4.1.0/24, subred privada 10.4.2.0/24, Internet Gateway y tablas de enrutamiento.",estado:"Pendiente",evidencia:""},
+      {etapa:"E3 · Cómputo (EC2)",desc:"Instancia EC2 del servidor web (subred pública) y EC2 de la base de datos (subred privada), dentro de la capa gratuita.",estado:"Pendiente",evidencia:""},
+      {etapa:"E4 · Despliegue de tienda y BD",desc:"Desplegar la tienda desde el repositorio y restaurar la base desde darsr_tienda.sql como darsr_g4, dejando la tienda operativa y conectada.",estado:"Pendiente",evidencia:""},
+      {etapa:"E5 · Controles de seguridad",desc:"Security Groups de mínimo privilegio (web 80/443 desde Internet y 22 solo IP admin; BD 3306 solo desde SG web), BD sin IP pública, usuario de aplicación con privilegios mínimos, credenciales fuera del código, eliminación de respaldos expuestos, HTTPS, EBS cifrado y CloudTrail.",estado:"Pendiente",evidencia:""},
+      {etapa:"E6 · Verificación operativa",desc:"Validar la operatividad extremo a extremo (catálogo, carrito, registro de pedidos y conexión a la base de datos).",estado:"Pendiente",evidencia:""}
+    ]
+  },
+  verificacion:[
+    {prueba:"Escaneo de puertos (nmap) al servidor web",resultado:"Solo 80/443 abiertos; 22 filtrado salvo IP de administración",riesgo:"R-G4-07 / R-G4-09"},
+    {prueba:"Intento de inyección SQL en el buscador",resultado:"Sin resultado anómalo (prepared statements)",riesgo:"R-G4-01"},
+    {prueba:"Acceso a /admin.php sin sesión",resultado:"Redirige al login; acceso denegado",riesgo:"R-G4-02"},
+    {prueba:"Acceso a /backup/config.php.bak",resultado:"404 / acceso denegado (respaldo eliminado del sitio)",riesgo:"R-G4-03"},
+    {prueba:"Conexión a 3306 desde Internet",resultado:"Rechazada (BD en subred privada, SG restringido)",riesgo:"R-G4-06"},
+    {prueba:"Verificación de HTTPS/TLS y certificado",resultado:"Tráfico cifrado; 80 redirige a 443",riesgo:"R-G4-07"},
+    {prueba:"Verificación de cifrado de volúmenes EBS",resultado:"Volúmenes y snapshots cifrados",riesgo:"R-G4-13"}
+  ],
+  politica:{
+    general:"Objetivo: proteger la confidencialidad, integridad y disponibilidad de la información de TecnoNorte. Alcance: toda la infraestructura on premise y on cloud bajo el SGSI. Roles y responsabilidades: dirección (aprobación), encargado de seguridad (gestión del SGSI), administradores (operación de controles), desarrollo (codificación segura), usuarios (cumplimiento). Marco normativo: ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, Ley 21.663 y Ley 21.719. Lineamientos: control de acceso, mínimo privilegio, cifrado, gestión de credenciales, respaldo y monitoreo. Sanciones: según reglamento interno y normativa legal vigente. Ciclo de revisión: revisión anual o ante cambios significativos.",
+    onpremise:"Política específica on premise: endurecimiento de servidores y equipos de red, credenciales únicas y robustas (fin de cisco/cisco), control de acceso en la aplicación, segregación de redes por VLAN, eliminación de respaldos y errores expuestos, y logging local. Mitiga: R-G4-01, R-G4-02, R-G4-03, R-G4-04, R-G4-05, R-G4-06, R-G4-08, R-G4-09, R-G4-10.",
+    oncloud:"Política específica on cloud (AWS): cuenta asegurada (MFA root, IAM, Budgets), mínimo privilegio en Security Groups e IAM, BD en subred privada, cifrado en tránsito (HTTPS/TLS) y en reposo (EBS), gestión de secretos fuera del código, monitoreo con CloudTrail y resguardo de datos personales. Mitiga: R-G4-07, R-G4-11, R-G4-12, R-G4-13, R-G4-14."
+  }
+  };
+}
+
+/* ============================ ESTADO ============================ */
+let D = cargar();
+function cargar(){ try{ const s=localStorage.getItem(LS_KEY); if(s) return JSON.parse(s);}catch(e){} return datosPorDefecto(); }
+function guardar(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(D)); }catch(e){} }
+function cargarCaso(){ if(confirm('Esto reemplazará los datos actuales con el caso TecnoNorte precargado. ¿Continuar?')){ D=datosPorDefecto(); guardar(); render(); toast('Caso TecnoNorte cargado'); } }
+
+/* ============================ CÁLCULOS ============================ */
+function nivel(r){ if(r<=5)return"Bajo"; if(r<=9)return"Medio"; if(r<=16)return"Alto"; return"Crítico"; }
+function clsNivel(n){ return 'n-'+n.toLowerCase().replace('í','i'); }
+function ridFull(rk){ return 'R-G'+D.grupo+'-'+String(rk.n).padStart(2,'0'); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function sobreCriterio(r){ return r>9; }
+
+/* ============================ NAV ============================ */
+const TABS=[
+  ["resumen","① Resumen"],["alcance","② Alcance"],["inventario","③ Inventario"],
+  ["identificacion","④ Identificación"],["matriz","⑤ Matriz"],["tratamiento","⑥ Tratamiento"],
+  ["migracion","⑦ Migración"],["verificacion","⑧ Verificación"],["politica","⑨ Política"],["documento","⑩ Documento"]
+];
+let actual='resumen';
+function initTabs(){
+  const nav=document.getElementById('tabs');
+  nav.innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" onclick="irA('${k}')">${l}</button>`).join('');
+}
+function irA(k){ actual=k; TABS.forEach(([t])=>{document.getElementById('tab-'+t).hidden=(t!==k);});
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.k===k));
+  render(); window.scrollTo(0,0);
+}
+
+/* ============================ RENDER ============================ */
+function render(){ guardar();
+  ({resumen:rResumen,alcance:rAlcance,inventario:rInventario,identificacion:rIdentificacion,
+    matriz:rMatriz,tratamiento:rTratamiento,migracion:rMigracion,verificacion:rVerificacion,
+    politica:rPolitica,documento:rDocumento}[actual])();
+}
+
+/* ---- ① Resumen ---- */
+function rResumen(){
+  const rs=D.riesgos, porNivel={Bajo:0,Medio:0,Alto:0,Crítico:0};
+  rs.forEach(r=>porNivel[nivel(r.p*r.i)]++);
+  const controles=rs.filter(r=>r.control&&r.control.trim()).length;
+  const etapas=D.migracion.etapas, hechas=etapas.filter(e=>/completad|hecho|finaliz/i.test(e.estado)).length;
+  const avance=etapas.length?Math.round(hechas/etapas.length*100):0;
+  const sobreInh=rs.filter(r=>sobreCriterio(r.p*r.i)).length;
+  const sobreRes=rs.filter(r=>sobreCriterio(r.pr*r.ir)).length;
+  document.getElementById('tab-resumen').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Panel de resumen del proyecto</h2>
+      <p class="muted">Grupo ${esc(D.grupo)} · ${esc(D.integrantes)} · ${esc(D.fecha)}</p>
+      <div class="grid kpis" style="margin-top:12px">
+        <div class="kpi"><div class="n">${D.inventario.length}</div><div class="l">Activos</div></div>
+        <div class="kpi"><div class="n">${rs.length}</div><div class="l">Riesgos</div></div>
+        <div class="kpi"><div class="n" style="color:var(--rojoR)">${porNivel.Crítico}</div><div class="l">Críticos</div></div>
+        <div class="kpi"><div class="n" style="color:var(--naranjo)">${porNivel.Alto}</div><div class="l">Altos</div></div>
+        <div class="kpi"><div class="n" style="color:var(--amarillo)">${porNivel.Medio}</div><div class="l">Medios</div></div>
+        <div class="kpi"><div class="n" style="color:var(--verde)">${porNivel.Bajo}</div><div class="l">Bajos</div></div>
+        <div class="kpi"><div class="n">${controles}</div><div class="l">Controles aplicados</div></div>
+        <div class="kpi"><div class="n">${avance}%</div><div class="l">Avance migración</div></div>
+      </div>
+      <div class="grid r2" style="margin-top:14px">
+        <div class="kpi"><div class="l">Riesgos sobre el criterio (inherente)</div>
+          <div class="n" style="color:var(--rojoR)">${sobreInh}</div>
+          <div class="muted">de ${rs.length} riesgos (R &gt; 9)</div></div>
+        <div class="kpi"><div class="l">Riesgos sobre el criterio (residual)</div>
+          <div class="n" style="color:${sobreRes?'var(--naranjo)':'var(--verde)'}">${sobreRes}</div>
+          <div class="muted">tras el tratamiento (objetivo: 0)</div></div>
+      </div>
+      <div style="margin-top:14px"><div class="l muted">Avance de la migración</div><progress value="${avance}" max="100"></progress></div>
+    </div>`;
+}
+
+/* ---- ② Alcance ---- */
+function rAlcance(){
+  const a=D.alcance;
+  document.getElementById('tab-alcance').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Alcance del SGSI y criterio de aceptación</h2>
+      <div class="row r3">
+        <label class="f"><span>Grupo (N)</span><input value="${esc(D.grupo)}" oninput="D.grupo=this.value" onchange="render()"></label>
+        <label class="f"><span>Fecha</span><input value="${esc(D.fecha)}" oninput="D.fecha=this.value" onchange="guardar()"></label>
+        <label class="f"><span>Integrantes</span><input value="${esc(D.integrantes)}" oninput="D.integrantes=this.value" onchange="guardar()"></label>
+      </div>
+      <div class="row r2">
+        <label class="f"><span>URL del sistema (Cloudflare Pages)</span><input value="${esc(D.urlSistema)}" oninput="D.urlSistema=this.value" onchange="guardar()"></label>
+        <label class="f"><span>URL del repositorio (GitHub)</span><input value="${esc(D.urlRepo)}" oninput="D.urlRepo=this.value" onchange="guardar()"></label>
+      </div>
+      <label class="f"><span>Alcance del SGSI</span><textarea oninput="D.alcance.descripcion=this.value" onchange="guardar()">${esc(a.descripcion)}</textarea></label>
+      <label class="f"><span>Objetivos de la migración</span><textarea oninput="D.alcance.objetivos=this.value" onchange="guardar()">${esc(a.objetivos)}</textarea></label>
+      <label class="f"><span>Criterio de aceptación del riesgo</span><textarea oninput="D.alcance.criterio=this.value" onchange="guardar()">${esc(a.criterio)}</textarea></label>
+    </div>`;
+}
+
+/* ---- ③ Inventario ---- */
+function rInventario(){
+  const cols=[["activo","Activo"],["tipo","Tipo"],["zona","Zona (VLAN)"],["ip","IP"],["servicio","Servicio"],["clasif","Clasificación"],["resp","Responsable"]];
+  const filas=D.inventario.map((a,ix)=>`<tr>
+    <td><strong>${esc(a.id)}</strong></td>
+    ${cols.map(([k])=>`<td><input value="${esc(a[k])}" oninput="D.inventario[${ix}].${k}=this.value" onchange="guardar()"></td>`).join('')}
+    <td class="cell-del"><button class="danger mini" onclick="delInv(${ix})">✕</button></td></tr>`).join('');
+  document.getElementById('tab-inventario').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Inventario de activos (on premise)</h2>
+      <p class="muted">Activos de la infraestructura con tipo, zona, dirección IP, servicio, clasificación de la información y responsable.</p>
+      <div class="scroll"><table><thead><tr><th>ID</th>${cols.map(([,l])=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody>${filas}</tbody></table></div>
+      <div class="addbar"><button onclick="addInv()">＋ Agregar activo</button></div>
+    </div>`;
+}
+function addInv(){ const nid='A-'+String(D.inventario.length+1).padStart(2,'0'); D.inventario.push({id:nid,activo:"",tipo:"",zona:"",ip:"",servicio:"",clasif:"",resp:""}); render(); }
+function delInv(ix){ if(confirm('¿Eliminar activo?')){ D.inventario.splice(ix,1); render(); } }
+
+/* ---- ④ Identificación ---- */
+function rIdentificacion(){
+  const filas=D.riesgos.map((r,ix)=>`<tr>
+    <td><strong>${ridFull(r)}</strong></td>
+    <td><input value="${esc(r.activo)}" oninput="D.riesgos[${ix}].activo=this.value" onchange="guardar()"></td>
+    <td><input value="${esc(r.amenaza)}" oninput="D.riesgos[${ix}].amenaza=this.value" onchange="guardar()"></td>
+    <td><textarea oninput="D.riesgos[${ix}].vuln=this.value" onchange="guardar()" style="min-height:48px">${esc(r.vuln)}</textarea></td>
+    <td><textarea oninput="D.riesgos[${ix}].fuente=this.value" onchange="guardar()" style="min-height:48px">${esc(r.fuente)}</textarea></td>
+    <td class="cell-del"><button class="danger mini" onclick="delRiesgo(${ix})">✕</button></td></tr>`).join('');
+  document.getElementById('tab-identificacion').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Identificación: amenazas, vulnerabilidades y evidencia</h2>
+      <p class="muted">Falencias de la arquitectura, la tienda y la base de datos, respaldadas con evidencia (código fuente, script y especificaciones).</p>
+      <div class="scroll"><table><thead><tr><th>ID</th><th>Activo</th><th>Amenaza</th><th>Vulnerabilidad</th><th>Evidencia / Fuente</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>
+      <div class="addbar"><button onclick="addRiesgo()">＋ Agregar riesgo</button></div>
+    </div>`;
+}
+function addRiesgo(){ const mx=D.riesgos.reduce((m,r)=>Math.max(m,r.n),0); D.riesgos.push({n:mx+1,activo:"",amenaza:"",vuln:"",fuente:"",p:1,i:1,opcion:"Mitigar",control:"",accion:"",pr:1,ir:1}); render(); }
+function delRiesgo(ix){ if(confirm('¿Eliminar riesgo?')){ D.riesgos.splice(ix,1); render(); } }
+
+/* ---- ⑤ Matriz ---- */
+function selPI(ix,campo,val){
+  const esc_=ESCALA_P; const escA=(campo==='p')?ESCALA_P:ESCALA_I;
+  let o='';for(let v=1;v<=5;v++){o+=`<option value="${v}" ${v==val?'selected':''} title="${esc(escA[v])}">${v}</option>`;}
+  return `<select onchange="D.riesgos[${ix}].${campo}=+this.value; render()">${o}</select>`;
+}
+function rMatriz(){
+  const rs=D.riesgos.slice().sort((a,b)=>(b.p*b.i)-(a.p*a.i));
+  const filas=rs.map(r=>{const R=r.p*r.i,nv=nivel(R),ix=D.riesgos.indexOf(r);
+    return `<tr>
+      <td><strong>${ridFull(r)}</strong></td>
+      <td>${esc(r.activo)}<div class="muted">${esc(r.amenaza)}</div></td>
+      <td style="width:70px">${selPI(ix,'p',r.p)}</td>
+      <td style="width:70px">${selPI(ix,'i',r.i)}</td>
+      <td style="text-align:center;font-weight:800">${R}</td>
+      <td><span class="badge ${clsNivel(nv)}">${nv}</span></td>
+    </tr>`;}).join('');
+  // heatmap
+  let heat='<table class="heat"><tbody>';
+  for(let i=5;i>=1;i--){ heat+=`<tr><td class="axis">I=${i}</td>`;
+    for(let p=1;p<=5;p++){ const R=p*i,nv=nivel(R);
+      const ids=D.riesgos.filter(r=>r.p===p&&r.i===i).map(ridFull).map(x=>x.replace('R-G'+D.grupo+'-','')).join(' ');
+      heat+=`<td class="${clsNivel(nv)}">${R}${ids?`<span class="ids">${ids}</span>`:''}</td>`;
+    } heat+='</tr>';
+  }
+  heat+='<tr><td class="axis"></td>'+[1,2,3,4,5].map(p=>`<td class="axis">P=${p}</td>`).join('')+'</tr></tbody></table>';
+  document.getElementById('tab-matriz').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Matriz de riesgos inherentes — R = P × I</h2>
+      <details class="guia"><summary>📏 Guía de cálculo (escala de referencia de P e I)</summary>
+        <div class="scroll"><table><thead><tr><th>Nivel</th><th>Probabilidad (P)</th><th>Impacto (I)</th></tr></thead><tbody>
+        ${[1,2,3,4,5].map(v=>`<tr><td><strong>${v}</strong></td><td>${esc(ESCALA_P[v])}</td><td>${esc(ESCALA_I[v])}</td></tr>`).join('')}
+        </tbody></table></div>
+        <p class="muted" style="margin-top:8px">Clasificación: Bajo 1–5 · Medio 6–9 · Alto 10–16 · Crítico 17–25. Criterio de aceptación: ≤ 9.</p>
+      </details>
+      <div class="scroll"><table><thead><tr><th>ID</th><th>Activo / Amenaza</th><th>P</th><th>I</th><th>R</th><th>Nivel</th></tr></thead><tbody>${filas}</tbody></table></div>
+      <h3 style="margin-top:22px">Matriz de calor 5×5</h3>
+      <p class="muted">Cada celda muestra R = P × I y los riesgos ubicados (número correlativo).</p>
+      <div class="scroll">${heat}</div>
+    </div>`;
+}
+
+/* ---- ⑥ Tratamiento ---- */
+function selControl(ix,val){
+  let o='<option value="">— Seleccionar control —</option>';
+  CONTROLES.forEach(c=>{o+=`<option ${val&&val.includes(c)?'selected':''}>${esc(c)}</option>`;});
+  return o;
+}
+function rTratamiento(){
+  const rs=D.riesgos.slice().sort((a,b)=>(b.p*b.i)-(a.p*a.i));
+  const filas=rs.map(r=>{const R=r.p*r.i,nv=nivel(R),Rr=r.pr*r.ir,nvr=nivel(Rr),ix=D.riesgos.indexOf(r);
+    return `<tr>
+      <td><strong>${ridFull(r)}</strong><div><span class="badge ${clsNivel(nv)}">${nv} ${R}</span></div></td>
+      <td style="width:110px"><select onchange="D.riesgos[${ix}].opcion=this.value;guardar()">
+        ${["Mitigar","Transferir","Evitar","Aceptar"].map(o=>`<option ${r.opcion===o?'selected':''}>${o}</option>`).join('')}</select></td>
+      <td style="min-width:200px"><select onchange="D.riesgos[${ix}].control=this.value;guardar()">${selControl(ix,r.control)}</select>
+        <div class="muted" style="margin-top:4px;font-size:11px">${esc(r.control)}</div></td>
+      <td><textarea style="min-height:52px" oninput="D.riesgos[${ix}].accion=this.value" onchange="guardar()">${esc(r.accion)}</textarea></td>
+      <td style="width:60px">${selPI(ix,'pr',r.pr)}</td>
+      <td style="width:60px">${selPI(ix,'ir',r.ir)}</td>
+      <td style="text-align:center"><span class="badge ${clsNivel(nvr)}">${nvr} ${Rr}</span></td>
+    </tr>`;}).join('');
+  document.getElementById('tab-tratamiento').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Plan de tratamiento y controles ISO/IEC 27001:2022</h2>
+      <p class="muted">Para cada riesgo se define la opción de tratamiento y el control del Anexo A, con la probabilidad e impacto residuales.</p>
+      <div class="scroll"><table><thead><tr><th>Riesgo (inherente)</th><th>Opción</th><th>Control (Anexo A)</th><th>Acción</th><th>P'</th><th>I'</th><th>Residual</th></tr></thead><tbody>${filas}</tbody></table></div>
+    </div>`;
+}
+
+/* ---- ⑦ Migración ---- */
+function rMigracion(){
+  const m=D.migracion;
+  const filas=m.etapas.map((e,ix)=>`<tr>
+    <td style="min-width:150px"><input value="${esc(e.etapa)}" oninput="D.migracion.etapas[${ix}].etapa=this.value" onchange="guardar()"></td>
+    <td><textarea style="min-height:52px" oninput="D.migracion.etapas[${ix}].desc=this.value" onchange="guardar()">${esc(e.desc)}</textarea></td>
+    <td style="width:130px"><select onchange="D.migracion.etapas[${ix}].estado=this.value;render()">
+      ${["Pendiente","En progreso","Completada"].map(o=>`<option ${e.estado===o?'selected':''}>${o}</option>`).join('')}</select></td>
+    <td><textarea style="min-height:52px" placeholder="IDs de recursos, reglas, capturas…" oninput="D.migracion.etapas[${ix}].evidencia=this.value" onchange="guardar()">${esc(e.evidencia)}</textarea></td>
+    </tr>`).join('');
+  document.getElementById('tab-migracion').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Plan de migración a AWS</h2>
+      <label class="f"><span>Arquitectura AWS</span><textarea oninput="D.migracion.arquitectura=this.value" onchange="guardar()">${esc(m.arquitectura)}</textarea></label>
+      <label class="f"><span>Responsabilidad compartida</span><textarea oninput="D.migracion.responsabilidad=this.value" onchange="guardar()">${esc(m.responsabilidad)}</textarea></label>
+      <h3 style="margin-top:14px">Etapas y evidencias</h3>
+      <div class="scroll"><table><thead><tr><th>Etapa</th><th>Descripción</th><th>Estado</th><th>Evidencia</th></tr></thead><tbody>${filas}</tbody></table></div>
+    </div>`;
+}
+
+/* ---- ⑧ Verificación ---- */
+function rVerificacion(){
+  const filas=D.verificacion.map((v,ix)=>`<tr>
+    <td><textarea style="min-height:48px" oninput="D.verificacion[${ix}].prueba=this.value" onchange="guardar()">${esc(v.prueba)}</textarea></td>
+    <td><textarea style="min-height:48px" oninput="D.verificacion[${ix}].resultado=this.value" onchange="guardar()">${esc(v.resultado)}</textarea></td>
+    <td style="width:120px"><input value="${esc(v.riesgo)}" oninput="D.verificacion[${ix}].riesgo=this.value" onchange="guardar()"></td>
+    <td class="cell-del"><button class="danger mini" onclick="delVerif(${ix})">✕</button></td></tr>`).join('');
+  // comparación inherente vs residual
+  const comp=D.riesgos.slice().sort((a,b)=>(b.p*b.i)-(a.p*a.i)).map(r=>{
+    const R=r.p*r.i,Rr=r.pr*r.ir;
+    return `<tr><td><strong>${ridFull(r)}</strong></td>
+      <td><span class="badge ${clsNivel(nivel(R))}">${nivel(R)} ${R}</span></td>
+      <td><span class="badge ${clsNivel(nivel(Rr))}">${nivel(Rr)} ${Rr}</span></td>
+      <td style="text-align:center">${sobreCriterio(Rr)?'<span class="tag" style="color:var(--rojoR)">Sobre criterio</span>':'<span style="color:var(--verde)">✔ Aceptable</span>'}</td></tr>`;
+  }).join('');
+  document.getElementById('tab-verificacion').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Verificación y riesgo residual</h2>
+      <h3>Resultados de las pruebas</h3>
+      <div class="scroll"><table><thead><tr><th>Prueba</th><th>Resultado</th><th>Riesgo</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>
+      <div class="addbar"><button onclick="addVerif()">＋ Agregar prueba</button></div>
+      <h3 style="margin-top:20px">Comparación: riesgo inherente vs. residual</h3>
+      <div class="scroll"><table><thead><tr><th>ID</th><th>Inherente</th><th>Residual</th><th>vs. criterio (≤ 9)</th></tr></thead><tbody>${comp}</tbody></table></div>
+    </div>`;
+}
+function addVerif(){ D.verificacion.push({prueba:"",resultado:"",riesgo:""}); render(); }
+function delVerif(ix){ if(confirm('¿Eliminar prueba?')){ D.verificacion.splice(ix,1); render(); } }
+
+/* ---- ⑨ Política ---- */
+function rPolitica(){
+  const p=D.politica;
+  document.getElementById('tab-politica').innerHTML=`
+    <div class="panel">
+      <h2 class="titulo">Política de seguridad de la información</h2>
+      <label class="f"><span>Política general (objetivo, alcance, roles, marco normativo, lineamientos, sanciones, ciclo de revisión)</span>
+        <textarea style="min-height:140px" oninput="D.politica.general=this.value" onchange="guardar()">${esc(p.general)}</textarea></label>
+      <label class="f"><span>Política específica — ámbito on premise (con riesgos que mitiga)</span>
+        <textarea oninput="D.politica.onpremise=this.value" onchange="guardar()">${esc(p.onpremise)}</textarea></label>
+      <label class="f"><span>Política específica — ámbito on cloud / AWS (con riesgos que mitiga)</span>
+        <textarea oninput="D.politica.oncloud=this.value" onchange="guardar()">${esc(p.oncloud)}</textarea></label>
+      <p class="muted">Fundamento normativo: ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, Ley 21.663 (Marco de Ciberseguridad) y Ley 21.719 (Protección de Datos Personales).</p>
+    </div>`;
+}
+
+/* ---- ⑩ Documento ---- */
+function rDocumento(){
+  document.getElementById('tab-documento').innerHTML=`
+    <div class="panel no-print">
+      <h2 class="titulo">Documento técnico (PDF)</h2>
+      <p class="muted">Genera el documento técnico completo a partir de los datos registrados. Usa el botón para abrir el diálogo de impresión y guardar como PDF (destino: «Guardar como PDF»).</p>
+      <button onclick="window.print()">🖨 Generar / descargar PDF</button>
+    </div>
+    <div class="panel" id="doc-print">${documentoHTML()}</div>`;
+}
+function documentoHTML(){
+  const rs=D.riesgos, porNivel={Bajo:0,Medio:0,Alto:0,Crítico:0}; rs.forEach(r=>porNivel[nivel(r.p*r.i)]++);
+  const sortInh=rs.slice().sort((a,b)=>(b.p*b.i)-(a.p*a.i));
+  // heat
+  let heat='<table class="heat"><tbody>';
+  for(let i=5;i>=1;i--){ heat+=`<tr><td class="axis">I=${i}</td>`;
+    for(let p=1;p<=5;p++){ const R=p*i,nv=nivel(R);
+      const ids=rs.filter(r=>r.p===p&&r.i===i).map(r=>String(r.n).padStart(2,'0')).join(' ');
+      heat+=`<td class="${clsNivel(nv)}">${R}${ids?`<span class="ids">${ids}</span>`:''}</td>`;
+    } heat+='</tr>'; }
+  heat+='<tr><td class="axis"></td>'+[1,2,3,4,5].map(p=>`<td class="axis">P=${p}</td>`).join('')+'</tr></tbody></table>';
+  const G=esc(D.grupo);
+  return `
+  <div style="text-align:center;padding:30px 0 10px">
+    <div style="font-size:30px;font-weight:800;color:var(--rojo)">DARSR</div>
+    <h1 style="margin:6px 0">Migración Segura de Infraestructura On Premise a AWS</h1>
+    <p>Sistema de Gestión de Riesgos — TecnoNorte</p>
+    <p><strong>Grupo ${G}</strong> · ${esc(D.integrantes)}</p>
+    <p>Fecha: ${esc(D.fecha)}</p>
+    <p>Sistema: <a href="${esc(D.urlSistema)}">${esc(D.urlSistema)}</a><br>Repositorio: <a href="${esc(D.urlRepo)}">${esc(D.urlRepo)}</a></p>
+    <p class="muted">Diseño de Arquitectura de Redes Seguras · INACAP La Serena · Docente: Daniel Ruz Moreno</p>
+  </div>
+  <div class="pagebreak"></div>
+  <h2>1. Panel de resumen del proyecto</h2>
+  <table><tbody>
+    <tr><th>Activos</th><td>${D.inventario.length}</td><th>Riesgos</th><td>${rs.length}</td></tr>
+    <tr><th>Críticos</th><td>${porNivel.Crítico}</td><th>Altos</th><td>${porNivel.Alto}</td></tr>
+    <tr><th>Medios</th><td>${porNivel.Medio}</td><th>Bajos</th><td>${porNivel.Bajo}</td></tr>
+    <tr><th>Riesgos sobre criterio (inherente)</th><td>${rs.filter(r=>sobreCriterio(r.p*r.i)).length}</td>
+        <th>Riesgos sobre criterio (residual)</th><td>${rs.filter(r=>sobreCriterio(r.pr*r.ir)).length}</td></tr>
+  </tbody></table>
+
+  <h2>2. Alcance del SGSI y criterio de aceptación</h2>
+  <p><strong>Alcance:</strong> ${esc(D.alcance.descripcion)}</p>
+  <p><strong>Objetivos:</strong> ${esc(D.alcance.objetivos)}</p>
+  <p><strong>Criterio de aceptación:</strong> ${esc(D.alcance.criterio)}</p>
+
+  <h2>3. Inventario de activos on premise</h2>
+  <table><thead><tr><th>ID</th><th>Activo</th><th>Tipo</th><th>Zona</th><th>IP</th><th>Servicio</th><th>Clasificación</th><th>Responsable</th></tr></thead><tbody>
+  ${D.inventario.map(a=>`<tr><td>${esc(a.id)}</td><td>${esc(a.activo)}</td><td>${esc(a.tipo)}</td><td>${esc(a.zona)}</td><td>${esc(a.ip)}</td><td>${esc(a.servicio)}</td><td>${esc(a.clasif)}</td><td>${esc(a.resp)}</td></tr>`).join('')}
+  </tbody></table>
+
+  <h2>4. Amenazas, vulnerabilidades y evidencias</h2>
+  <table><thead><tr><th>ID</th><th>Activo</th><th>Amenaza</th><th>Vulnerabilidad</th><th>Evidencia</th></tr></thead><tbody>
+  ${rs.map(r=>`<tr><td>${ridFull(r)}</td><td>${esc(r.activo)}</td><td>${esc(r.amenaza)}</td><td>${esc(r.vuln)}</td><td>${esc(r.fuente)}</td></tr>`).join('')}
+  </tbody></table>
+
+  <h2>5. Matriz de riesgo inherente</h2>
+  <table><thead><tr><th>ID</th><th>Activo</th><th>P</th><th>I</th><th>R</th><th>Nivel</th></tr></thead><tbody>
+  ${sortInh.map(r=>{const R=r.p*r.i;return `<tr><td>${ridFull(r)}</td><td>${esc(r.activo)}</td><td>${r.p}</td><td>${r.i}</td><td><strong>${R}</strong></td><td><span class="badge ${clsNivel(nivel(R))}">${nivel(R)}</span></td></tr>`;}).join('')}
+  </tbody></table>
+  <h3>Matriz de calor 5×5</h3>${heat}
+
+  <h2>6. Plan de tratamiento con controles ISO/IEC 27001:2022</h2>
+  <table><thead><tr><th>ID</th><th>Opción</th><th>Control (Anexo A)</th><th>Acción</th><th>Residual</th></tr></thead><tbody>
+  ${sortInh.map(r=>{const Rr=r.pr*r.ir;return `<tr><td>${ridFull(r)}</td><td>${esc(r.opcion)}</td><td>${esc(r.control)}</td><td>${esc(r.accion)}</td><td><span class="badge ${clsNivel(nivel(Rr))}">${nivel(Rr)} ${Rr}</span></td></tr>`;}).join('')}
+  </tbody></table>
+
+  <h2>7. Plan de migración, arquitectura AWS y responsabilidad compartida</h2>
+  <p><strong>Arquitectura:</strong> ${esc(D.migracion.arquitectura)}</p>
+  <p><strong>Responsabilidad compartida:</strong> ${esc(D.migracion.responsabilidad)}</p>
+  <table><thead><tr><th>Etapa</th><th>Descripción</th><th>Estado</th><th>Evidencia</th></tr></thead><tbody>
+  ${D.migracion.etapas.map(e=>`<tr><td>${esc(e.etapa)}</td><td>${esc(e.desc)}</td><td>${esc(e.estado)}</td><td>${esc(e.evidencia)}</td></tr>`).join('')}
+  </tbody></table>
+
+  <h2>8. Verificación y riesgo residual</h2>
+  <table><thead><tr><th>Prueba</th><th>Resultado</th><th>Riesgo</th></tr></thead><tbody>
+  ${D.verificacion.map(v=>`<tr><td>${esc(v.prueba)}</td><td>${esc(v.resultado)}</td><td>${esc(v.riesgo)}</td></tr>`).join('')}
+  </tbody></table>
+  <table><thead><tr><th>ID</th><th>Inherente</th><th>Residual</th></tr></thead><tbody>
+  ${sortInh.map(r=>{const R=r.p*r.i,Rr=r.pr*r.ir;return `<tr><td>${ridFull(r)}</td><td><span class="badge ${clsNivel(nivel(R))}">${nivel(R)} ${R}</span></td><td><span class="badge ${clsNivel(nivel(Rr))}">${nivel(Rr)} ${Rr}</span></td></tr>`;}).join('')}
+  </tbody></table>
+
+  <h2>9. Política de seguridad de la información</h2>
+  <p><strong>Política general:</strong> ${esc(D.politica.general)}</p>
+  <p><strong>Política on premise:</strong> ${esc(D.politica.onpremise)}</p>
+  <p><strong>Política on cloud:</strong> ${esc(D.politica.oncloud)}</p>
+  `;
+}
+
+/* ============================ JSON ============================ */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='proyecto-grupo'+D.grupo+'.json'; a.click(); URL.revokeObjectURL(a.href);
+  toast('JSON exportado');
+}
+function importJSON(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const rd=new FileReader(); rd.onload=()=>{ try{ D=JSON.parse(rd.result); guardar(); render(); toast('Datos importados'); }catch(e){ alert('Archivo JSON inválido'); } };
+  rd.readAsText(f); ev.target.value='';
+}
+
+/* ============================ UI ============================ */
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+function toggleTema(){ const r=document.documentElement; const n=r.getAttribute('data-theme')==='dark'?'light':'dark'; r.setAttribute('data-theme',n); try{localStorage.setItem('darsr_tema',n);}catch(e){} }
+(function initTema(){ try{ const t=localStorage.getItem('darsr_tema'); if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){} })();
+
+/* ============================ INICIO ============================ */
+initTabs(); irA('resumen');
+</script>
+</body>
+</html>
